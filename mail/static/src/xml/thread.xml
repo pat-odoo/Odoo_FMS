@@ -207,8 +207,10 @@
         <div class="editor_root container-fluid">
             <div class="editor_container row">
                 <div class="left_pan col-md-9">
+                <div class="popup_box_add">
                     <div class="o_image_annoted_div">
                         <img class="o_editor_image" t-attf-src="/web/image/#{widget.att_id}"></img>
+                        </div>
                     </div>
                 </div>
                 <div class="right_pan col-md-3">
@@ -220,16 +222,14 @@
 
     <div t-name="mail.ChatThread.ImageEditor.CommentBox">
         <div t-attf-style="top : #{widget.topposition}px ; left: #{widget.leftposition}px; position:absolute">
-   
             <div class="container" style="max-width:450px;">
               <div class="panel-group"> 
                 <div class="panel panel-primary" >
-                  <div class="panel-heading">Your Comment</div>
+                  <div class="panel-heading">Your Comment<i class="fa fa-trash-o" aria-hidden="true" style="padding-left:270px;" id="circle_remove_btn"></i></div>
                   <div class="panel-body">
-                    <textarea class="form-control" rows="5" id="comment"></textarea>
-                    <button type="button" class="btn btn-primary " style="margin:5px;">Save</button>
-                    <button type="button" class="btn btn-danger " style="margin:5px;">Cancel</button>               
-                    </div>
+                <textarea type="text" class="form-control" cols="40" rows="5" id="comment" style="resize:none"></textarea>
+                <button type="button" class="btn btn-primary " style="margin:5px;" id="popup_save">Save</button>
+                <button type="button" class="btn btn-danger " style="margin:5px;" id="popup_cancel">Cancel</button>  </div>
                 </div>
               </div>
             </div>
@@ -237,9 +237,7 @@
     </div>
 
     <div t-name="mail.ChatThread.ImageEditor.Circle">
-        <div id='circle' t-attf-style="top : #{widget.topposition}px ; left: #{widget.leftposition}px ">
-            
-        </div>
+        <button type="button" t-attf-style="top : #{widget.topposition}px ; left: #{widget.leftposition}px ;" id="circle"></button>
     </div>
 
 </templates>

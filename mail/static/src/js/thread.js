@@ -308,13 +308,16 @@ var Thread = Widget.extend({
         image_editor.appendTo('body');
     }
 });
-
+var is_popup_open = 1;  // global variable for cheacking Popup Open or Not.
 var ImageEditor = Widget.extend({
     template: 'mail.ChatThread.ImageEditor',
     events: {
         'click .o_close_editor': 'on_editor_click',
-        'click .o_image_annoted_div' : 'o_image_annoted_div_click',
-        'mousedown .o_image_annoted_div' : 'o_image_annoted_div_mousedown'
+        'click .o_editor_image' : 'o_image_annoted_div_click',
+        // 'mousedown .o_image_annoted_div' : 'o_image_annoted_div_mousedown',
+        'click #popup_cancel' : 'popup_cancle_btn_click',
+        'click #popup_save' : 'popup_save_btn_click',
+        'click #circle_remove_btn' : 'circle_remove_btn_click',
     },
     init: function(parent, att_id){
         this.parent = parent;
@@ -338,12 +341,21 @@ var ImageEditor = Widget.extend({
         var howFarFromtop = clicktop - imagetop-10;
 
         this.$annoted_div = this.$el.find(".o_image_annoted_div");
-
+        this.$popup_box_add = this.$el.find(".popup_box_add");
         var circle = new Circle(howFarFromtop,howFarFromLeft);
         circle.appendTo(this.$annoted_div);
 
         var comment_box = new CommentBox(howFarFromtop,howFarFromLeft);
-        comment_box.appendTo(this.$annoted_div);
+
+        if(is_popup_open){
+            comment_box.appendTo(this.$popup_box_add);
+            is_popup_open = 0;
+        }
+        else{
+            $('.panel-group').hide();
+            is_popup_open = 0;
+            comment_box.appendTo(this.$popup_box_add);
+        }
     },
             
     o_image_annoted_div_mousedown : function(e){
@@ -376,7 +388,22 @@ var ImageEditor = Widget.extend({
             }).mouseup(function () {
                 $(".o_image_annoted_div").off('mousemove');
             });
-    }
+    },
+
+    popup_cancle_btn_click : function (e) {
+        $('.panel-group').hide();
+    },
+
+
+    popup_save_btn_click : function (e) {
+        $('.panel-group').hide();
+    },
+
+    circle_remove_btn_click : function (e) {   //function for use trash icon in popup comment box
+        // $('.panel-group').detach();
+        // $('o_image_annoted_div').detach();
+        
+        }
 });
 
 var Circle = Widget.extend({

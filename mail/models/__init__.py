@@ -18,3 +18,4 @@ import update
 import ir_actions
 import ir_autovacuum
 import html2text
+import image_annote

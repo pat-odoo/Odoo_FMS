@@ -204,7 +204,79 @@
     </t>
 
     <div t-name="mail.ChatThread.ImageEditor">
-        <div class="editor_root container-fluid">
+        
+        <button type="button" class="btn btn-danger o_close_editor" ><i class="fa fa-times" aria-hidden="true"></i></button>
+        
+        <div class="editor_root container-fluid" id="main_root">
+            <div class="editor_container row">
+                <div style="padding:0px;"  class="left_pan col-md-9">
+                    <div class="o_image_annoted_div">  
+                        <img id="img_main" class="o_editor_image" t-attf-src="/web/image/#{widget.att_id}"></img>
+                    </div>
+              </div>
+                <div style="padding:0px;"  class="right_pan col-md-3">
+                    <nav id="navbar-inverse" class="navbar navbar-inverse">
+                        <div id="con_fluid" class="container-fluid">
+                            <ul class="nav navbar-nav"> 
+                            <div class="btn-group o_dropdown open">
+                                        <button class="o_dropdown_toggler_btn btn btn-sm dropdown-toggle " data-toggle="dropdown" aria-expanded="true">
+                                            <div id="pic" class="color_picker">
+                                                <span style="margin-left:20px;" class="caret"></span>
+                                            </div>
+                                        </button>
+                                         <ul class="dropdown-menu" role="menu">
+                                            <div class="row color_picker_dropdown_row">
+                                                <div class=" col-md-3">
+                                                    <div class="color_picker_all" id="color_picker_col_yellow"></div>
+                                                </div>
+                                                <div class=" col-md-3">
+                                                    <div class="color_picker_all" id="color_picker_col_red"></div>
+                                                </div>
+                                                <div class=" col-md-3">
+                                                    <div  class="color_picker_all" id="color_picker_col_blue"></div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="color_picker_all" id="color_picker_col_green"></div>
+                                                </div>
+                                            </div>
+                                         </ul>
+                                     </div>                               
+                                <div class="btn-group">
+                                    <div style="margin:7px 0px 0px 0px;" class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-primary btn-md btn_rect">Rectangle</button>
+                                        <button type="button" class="btn btn-default btn-md btn_circle">Circle</button>
+                                    </div>
+                                </div>
+                                <div style="margin:20px 0px 0px 10px;" data-toggle="tooltip" title="Show annotation" class="btn-group">
+                                        <button type="button" id="btn_show" class="btn btn-primary" ><i id="icn" class="fa fa-eye" aria-hidden="true"></i></button>
+                                </div> 
+                            </ul>                   
+                        </div>
+                    </nav>
+                    <div id="comment_area">                
+                        <div class="card">                        
+                            <div class="card-block">
+                                <h4 class="card-title">Sender-1</h4>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content</p> 
+                            </div>
+                        </div>
+                        <div class="card">                        
+                            <div class="card-block">
+                                <h4 class="card-title">Sender-2</h4>
+                             <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content</p>
+                            </div>
+                        </div>
+                        <div class="card">                        
+                            <div class="card-block">
+                                <h4 class="card-title">Sender-3</h4>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content</p> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="editor_root container-fluid">
             <div class="editor_container row">
                 <div class="left_pan col-md-9">
                     <div class="o_image_annoted_div">
@@ -212,23 +284,36 @@
                     </div>
                 </div>
                 <div class="right_pan col-md-3">
-                    
+                    <div class="o_close_editor"> <i class="fa fa-times fa-2x"></i> </div>
+                    <div class="o_annoted_circle_blue_color"></div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <div t-name="mail.ChatThread.ImageEditor.CommentBox">
-        <div t-attf-style="top : #{widget.topposition}px ; left: #{widget.leftposition}px; position:absolute">
+        <div t-attf-id="#{widget.comment_id}" t-attf-style="top : #{widget.commentbox_top}px ; left: #{widget.commentbox_left}px; position:absolute">
    
-            <div class="container" style="max-width:450px;">
+            <div class="container" style="max-width:450px; z-index:2000;position:absolute;">
               <div class="panel-group"> 
                 <div class="panel panel-primary" >
-                  <div class="panel-heading">Your Comment</div>
-                  <div class="panel-body">
-                    <textarea class="form-control" rows="5" id="comment"></textarea>
-                    <button type="button" class="btn btn-primary " style="margin:5px;">Save</button>
-                    <button type="button" class="btn btn-danger " style="margin:5px;">Cancel</button>               
+                  <div class="panel-heading"><label id="cmnt_subject" >Your Subject</label>
+                        <i id='save_subject' class='fa fa-check o_hidden'></i> 
+                        <i id='cancel_subject' class='fa fa-times o_hidden'></i>
+                        <i class="fa fa-pencil-square-o" id="cmnt_subject_edit_btn"></i>
+
+                            <div class="btn-group">
+        <button type="button" class="btn btn-primary btn-md btn_rect panel_btn_in_progress">In Progress</button>
+               <button type="button" class="btn btn-primary btn-md btn_rect panel_btn_resolved">Resolved</button>
+             <button type="button" class="btn btn-primary btn-md btn_rect panel_btn_rejected">Rejected</button>
+             
+                        </div>
+                </div>
+                    <div class="panel-body">
+                        <div class="o_comment_box_chatter_div"></div>
+                        <textarea placeholder="Post a comment......" class="form-control o_chat_box" rows="5"></textarea>
+                        <button type="button" class="btn btn-primary o_comment_box_send" style="margin:5px;">Send</button>
+                        <button type="button" class="btn btn-danger o_comment_box_close" style="margin:5px;">Cancel</button>               
                     </div>
                 </div>
               </div>
@@ -236,8 +321,10 @@
         </div>
     </div>
 
+
+
     <div t-name="mail.ChatThread.ImageEditor.Circle">
-        <div id='circle' t-attf-style="top : #{widget.topposition}px ; left: #{widget.leftposition}px ">
+        <div tabindex=""  class="o_annoted_circle" t-attf-style="top : #{widget.circle_top}px ; left: #{widget.circle_left}px ">
             
         </div>
     </div>

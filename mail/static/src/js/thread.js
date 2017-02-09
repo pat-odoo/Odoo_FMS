@@ -3,6 +3,9 @@ odoo.define('mail.ChatThread', function (require) {
 
 var core = require('web.core');
 var Widget = require('web.Widget');
+var ajax = require('web.ajax');
+var Model = require('web.Model');
+var session = require('web.session');
 
 var QWeb = core.qweb;
 var _t = core._t;
@@ -309,46 +312,145 @@ var Thread = Widget.extend({
     }
 });
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 var ImageEditor = Widget.extend({
     template: 'mail.ChatThread.ImageEditor',
     events: {
         'click .o_close_editor': 'on_editor_click',
-        'click .o_image_annoted_div' : 'o_image_annoted_div_click',
-        'mousedown .o_image_annoted_div' : 'o_image_annoted_div_mousedown'
+        'click .o_editor_image' : 'o_editor_image_click',
+        'click .o_annoted_circle_blue_color' : 'o_annoted_circle_blue_color_click',
+        'mousedown .o_editor_image' : 'o_editor_image_mousedown',
+        'click': 'o_image_div_click',
+        'click #btn_show' : 'btn_show_hide_click',
+        // 'click .color_picker_all':'change_colorPicker_click',
+        'click .btn_rect': 'btn_ractangle_annotation_click',
+        'click .btn_circle': 'btn_circle_annotation_click',
+
     },
     init: function(parent, att_id){
         this.parent = parent;
         this.att_id = att_id;
-        this.$popup = $('<div>').addClass('popup-box');
+        this.child_circle = [];
+        this.blank_child_circle = [];
+        this.circle_db_id = 0;
+        this.image_editor_model = new Model('mail.imageeditor.circle');
         return this._super();
     },
+    start:function(){
+        
+        this.$annoted_div = this.$el.find(".o_image_annoted_div");        
+        
+        var self = this;
+        var domain = [['attachment_id','=',this.att_id]];
+        this.image_editor_model.call('search_read', [domain]).then(function(result) {
+            
+                _.each(result, function(circle){
+                    var circles = new Circle(circle.top_cord,circle.left_cord,self.$annoted_div,circle.id,'hide_state',self,self,circle.subject,circle.color);
+                    circles.appendTo(self.$annoted_div);
+                    self.child_circle.push(circles);
+                });
+        });
+    },
+    o_image_div_click: function(e){
 
+    },
+    btn_ractangle_annotation_click:function(){
+        var ractangle_annoted = this.$el.find(".btn_rect");
+        var circle_annoted = this.$el.find(".btn_circle");
+        
+        $(ractangle_annoted).removeClass("btn-default");
+        $(circle_annoted).removeClass("btn-primary");
+
+        $(ractangle_annoted).addClass("btn-primary");
+        $(circle_annoted).addClass("btn-default");
+       
+    },
+    btn_circle_annotation_click:function(){
+        var ractangle_annoted = this.$el.find(".btn_rect");
+        var circle_annoted = this.$el.find(".btn_circle");
+        
+        $(ractangle_annoted).removeClass("btn-primary");
+        $(circle_annoted).removeClass("btn-default");
+
+        $(ractangle_annoted).addClass("btn-default");
+        $(circle_annoted).addClass("btn-primary");
+        
+    },
+    // change_colorPicker_click:function(e){
+    //     var clr = $( e.target ).css( "background-color" );
+    //     $( "#pic" ).css( "background-color",clr);
+    // },
+    btn_show_hide_click:function(e){
+       if($("#btn_show").hasClass("btn btn-primary")){
+            $("#btn_show").attr({"class":"btn btn-danger","title":"Hide annotation"});
+            $("#icn").attr({"class":"fa fa-eye-slash"});
+            this.hide_all_circles();        
+        }
+        else
+        {
+            $("#btn_show").attr({"class":"btn btn-primary","title":"Show annotation"});
+            $("#icn").attr({"class":"fa fa-eye"});
+            this.show_all_circles();
+        }
+    },
     on_editor_click: function(e){
         this.destroy();
     },
+    hide_all_circles:function(){
+        _.each(this.child_circle, function(circle){
+            $(circle.$el).addClass('o_hidden');
+        });
+        this.clear_all();
+    },
+    show_all_circles:function(){
+        _.each(this.child_circle, function(circle){
+            $(circle.$el).removeClass('o_hidden');
+        });
+    },
+    clear_all : function(){
+        _.each(this.child_circle, function(circle){
+            $(circle.comment_box.$el).addClass('o_hidden');
+        });
+        
+        _.each(this.blank_child_circle, function(circle){
+            if(circle.comment_box.comment_id == 0){
+                circle.close_circle();
+            }
+        });
+    },
 
-    o_image_annoted_div_click : function(e){
+    o_editor_image_click : function(e){
+
+
+        if($(e.target).hasClass('o_annoted_circle')){
+            return;
+        }
+ 
+        this.clear_all();
+
         var offset = $(e.currentTarget).offset()
         var imageLeft = offset.left;
         var clickLeft = e.pageX;
-        var howFarFromLeft = clickLeft - imageLeft+5;
+        var howFarFromLeft = clickLeft - imageLeft - 10;
 
         var imagetop = offset.top;
         var clicktop = e.pageY;
-        var howFarFromtop = clicktop - imagetop-10;
+        var howFarFromtop = clicktop - imagetop - 10;
 
         this.$annoted_div = this.$el.find(".o_image_annoted_div");
-
-        var circle = new Circle(howFarFromtop,howFarFromLeft);
+        var circle = new Circle(howFarFromtop,howFarFromLeft,this.$annoted_div,this.circle_db_id,'show_state',this,this.att_id,"Your Subject");
         circle.appendTo(this.$annoted_div);
-
-        var comment_box = new CommentBox(howFarFromtop,howFarFromLeft);
-        comment_box.appendTo(this.$annoted_div);
+        
+        this.blank_child_circle.push(circle);
+        /*var values = {
+            "circles": [[0, 0, {"top_cord": howFarFromtop,"left_cord" : howFarFromLeft}]]
+        }*/
     },
             
-    o_image_annoted_div_mousedown : function(e){
+    o_editor_image_mousedown : function(e){
 
-            this.$annoted_div = this.$el.find(".o_image_annoted_div");
+            /*this.$annoted_div = this.$el.find(".o_image_annoted_div");
             var click_y = e.pageY,
                 click_x = e.pageX;
             var $selection = $('<div>').addClass('selection-box');
@@ -375,32 +477,239 @@ var ImageEditor = Widget.extend({
 
             }).mouseup(function () {
                 $(".o_image_annoted_div").off('mousemove');
-            });
-    }
+            });*/
+    },
+
 });
 
 var Circle = Widget.extend({
     template: 'mail.ChatThread.ImageEditor.Circle',
     events: {
+        'click .o_annoted_circle' : 'o_annoted_circle_click',
 
     },
-    init: function(howFarFromtop,howFarFromLeft){
-        this.topposition = howFarFromtop;
-        this.leftposition = howFarFromLeft;
+    init: function(howFarFromtop,howFarFromLeft,parent,id,state,parent_obj,att_id,subject,circle_color){
+        this.circle_top = howFarFromtop;
+        this.circle_left = howFarFromLeft;
+        this.parent = parent;
+        this.id = id;
+        this.circle_color = circle_color;
+        this.state = state;
+        this.att_id = att_id;
+        this.image_editor_object = parent_obj;  
+        this.subject_text = subject;
+        this.circle_object = this; 
         return this._super();
     },
+    start: function()
+    {
+        
+        ///////////vandan/////////////
+
+
+        var clr=$( "#pic" ).css( "background-color");
+        var current_circle=this.$el.find(".o_annoted_circle");
+        $(current_circle).css( {"background-color":this.circle_color});
+        $( "#pic" ).css( "background-color",clr);
+
+
+        //////////////////////////////
+
+
+        var self = this;
+        this.comment_box = new CommentBox(this.circle_top,this.circle_left,this.id,this.state,this,this.image_editor_object);
+        return this._super().then(function(){
+            self.comment_box.appendTo(self.parent);
+        });
+    },
+    set_id : function(id){
+        this.id = id;
+    },
+    close_circle:function(){
+        this.destroy();
+        this.comment_box.destroy();
+    },
+    o_annoted_circle_click : function(e){
+        this.image_editor_object.clear_all();
+        var comment_hide = $(this.comment_box.$el);
+        comment_hide.removeClass('o_hidden');
+    },
+
 });
 
 var CommentBox = Widget.extend({
     template: 'mail.ChatThread.ImageEditor.CommentBox',
     events: {
-        
+        'click .o_comment_box_close' : 'o_comment_box_close_click',
+        'click .o_comment_box_send' : 'o_comment_box_send_click',
+        'click #cmnt_subject_edit_btn' : 'cmnt_subject_edit_btn_click',
+        'click #save_subject':'save_subject_click',
+        'click #cancel_subject':'cancel_subject_click',
+        'click .panel_btn_resolved':'panel_btn_resolved_click',
+        'click .panel_btn_rejected':'panel_btn_rejected_click',
+        'click .panel_btn_in_progress':'panel_btn_in_progress_click',
     },
-    init: function(howFarFromtop,howFarFromLeft){
-        this.topposition = howFarFromtop + 20;
-        this.leftposition = howFarFromLeft + 20;
+    init: function(howFarFromtop,howFarFromLeft,id,state,parent_obj,image_editor_object){
+        this.commentbox_top =  howFarFromtop + 15;
+        this.commentbox_left = howFarFromLeft + 15;
+        this.comment_id = id;
+        this.state = state;
+        this.image_editor_object = image_editor_object;  
+        this.circle_object = parent_obj;
         return this._super();
     },
+    start:function(){
+        this.$chatter_div = this.$el.find(".o_comment_box_chatter_div");  
+        this.$subject_div = this.$el.find("#cmnt_subject");
+        this.image_editor_message_model = new Model('mail.imageeditor.message');
+        var self = this;
+        var domain = [['circle_id','=',this.comment_id]]
+        var subject_text = self.circle_object.subject_text;
+
+        // setting In progress/ resolved/ reject color btn color
+
+        if (self.circle_object.circle_color == '#ffc107'){
+            self.$el.find('.panel_btn_in_progress').css('background-color','#ffc107');
+        }
+        else if (self.circle_object.circle_color == '#E53935'){
+            self.$el.find('.panel_btn_rejected').css('background-color','#E53935');
+        }
+        else if (self.circle_object.circle_color == '#198c75'){
+            self.$el.find('.panel_btn_resolved').css('background-color','#198c75');
+        }
+        self.$subject_div.text(subject_text);
+
+
+        this.image_editor_message_model.call('search_read', [domain]).then(function(result) {
+            
+                _.each(result, function(message){
+                    var $chat = $('<div>' + message.body + '</div>');
+                    $chat.appendTo(self.$chatter_div);
+                    
+                });
+        });
+        if (this.state == "hide_state"){
+            this.do_hide();
+        }
+    },
+    o_comment_box_close_click:function(){
+        if(this.comment_id == 0){
+            this.circle_object.close_circle();
+        }
+        else
+            this.do_hide();
+    },
+    o_comment_box_send_click : function(){
+        
+        this.mess_values;
+        this.subject_text = this.$el.find('#cmnt_subject').text();
+        this.$chatter_div = this.$el.find(".o_comment_box_chatter_div");
+        var message = this.$el.find(".o_chat_box").val();
+        this.$el.find(".o_chat_box").val('');
+        var $chat = $('<div>' + message + '</div>');
+        $chat.appendTo(this.$chatter_div);
+        
+        if(this.comment_id == 0){
+            this.image_editor_model_circle = new Model('mail.imageeditor.circle');
+            var values = {
+                "attachment_id" : this.image_editor_object.att_id,
+                "top_cord": this.commentbox_top - 15,
+                "left_cord" : this.commentbox_left - 15,
+                "color" : '#ffc107',
+                "subject" : this.subject_text
+
+            };
+            var self = this;       
+            this.image_editor_model_circle.call('create',[values]).then(function (res) {
+                self.mess_values = {
+                    "circle_id" : res,
+                    "body": message,
+                    "author" : session.name,
+                };
+                self.comment_id = res;
+                self.circle_object.id = res;
+                self.image_editor_object.child_circle.push(self.circle_object);
+                self.image_editor_model_message = new Model('mail.imageeditor.message');
+                self.image_editor_model_message.call('create',[self.mess_values]).then(function (res) {
+                    
+                });
+
+            });
+            
+        }else{
+            this.mess_values = {
+                    "circle_id" : this.comment_id,
+                    "body": message,
+                    "author" : session.name,
+                    "subject" : this.subject_text
+                };
+            this.image_editor_model_message = new Model('mail.imageeditor.message');
+            this.image_editor_model_message.call('create',[this.mess_values]).then(function (res) {
+                    
+            });
+        }
+    },
+    cmnt_subject_edit_btn_click : function(e){
+        this.$el.find('#cmnt_subject').attr('contenteditable','true');
+        this.$el.find('#save_subject').removeClass("o_hidden");
+        this.$el.find('#cancel_subject').removeClass("o_hidden");
+        this.$el.find('#cmnt_subject_edit_btn').addClass("o_hidden");
+        this.subject_text = this.$el.find('#cmnt_subject').text();
+        this.$el.find('#cmnt_subject').css('background-color','gray');
+
+    },
+    save_subject_click : function(e){
+        this.$el.find('#cmnt_subject').attr('contenteditable','false');
+        this.$el.find('#save_subject').addClass("o_hidden");
+        this.$el.find('#cancel_subject').addClass("o_hidden");
+        this.$el.find('#cmnt_subject_edit_btn').removeClass("o_hidden");
+        this.subject_text =  this.$el.find('#cmnt_subject').text();
+        this.$el.find('#cmnt_subject').css('background-color','#875a7b');
+
+        var Model_save_subject = new Model('mail.imageeditor.circle');
+        Model_save_subject.call('write',[[this.circle_object.id],{'subject':this.subject_text}]);
+    },
+    cancel_subject_click : function(e){
+        this.$el.find('#cmnt_subject').attr('contenteditable','false');
+        this.$el.find('#save_subject').addClass("o_hidden");
+        this.$el.find('#cancel_subject').addClass("o_hidden");
+        this.$el.find('#cmnt_subject_edit_btn').removeClass("o_hidden");
+        this.$el.find('#cmnt_subject').text(this.subject_text);    
+        this.$el.find('#cmnt_subject').css('background-color','#875a7b');
+
+    },
+    panel_btn_resolved_click : function(e){
+        this.$el.find(".panel_btn_resolved").css('background-color','#198c75');
+        this.circle_object.$el.find('.o_annoted_circle').css('background-color','#198c75');
+
+        this.$el.find(".panel_btn_in_progress").css('background-color','grey');
+        this.$el.find(".panel_btn_rejected").css('background-color','grey');
+
+        var Model_save_color = new Model('mail.imageeditor.circle');
+        Model_save_color.call('write',[[this.circle_object.id],{'color':'#198c75'}]);
+    },
+    panel_btn_rejected_click : function(e){
+            this.$el.find(".panel_btn_rejected").css('background-color','#E53935');
+            this.circle_object.$el.find('.o_annoted_circle').css('background-color','#E53935');
+
+            this.$el.find(".panel_btn_resolved").css('background-color','grey');
+            this.$el.find(".panel_btn_in_progress").css('background-color','grey');
+
+        var Model_save_color = new Model('mail.imageeditor.circle');
+        Model_save_color.call('write',[[this.circle_object.id],{'color':'#E53935'}]);
+    },
+    panel_btn_in_progress_click : function(e){
+        this.$el.find(".panel_btn_in_progress").css('background-color','#ffc107');
+        this.circle_object.$el.find('.o_annoted_circle').css('background-color','#ffc107');
+
+        this.$el.find(".panel_btn_resolved").css('background-color','grey');
+        this.$el.find(".panel_btn_rejected").css('background-color','grey');
+
+        var Model_save_color = new Model('mail.imageeditor.circle');
+        Model_save_color.call('write',[[this.circle_object.id],{'color':'#ffc107'}]);
+
+
+    }
 });
 
 Thread.ORDER = ORDER;

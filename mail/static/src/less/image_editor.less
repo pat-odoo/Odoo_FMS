@@ -1,9 +1,31 @@
-#circle {
-    background-color: #09f;
+@circle_color : #800080;
+@popup_background_color : #ec971f;
+@navcolor:primary-color;
+@circle_clr:#ffff00;
+
+.o_annoted_circle {
+    background-color: @circle_color;
     width: 20px;
     height: 20px;
     border-radius: 200px;
     position: absolute;
+    border-color: white;
+}
+
+.commentbox {
+    background-color: @circle_color;
+    width: 200px;
+    height: 200px;
+    position: absolute;
+}
+
+.o_annoted_circle_blue_color{
+    background-color: blue;
+    width: 20px;
+    height: 20px;
+    border-radius: 200px;
+    position: absolute;
+    border-color: white;
 }
 
 
@@ -16,15 +38,224 @@
 .popup-box{
     width: 450px;
     height: 200px;
-    /*box-shadow: 3px 3px 3px 3px #bce8f1;*/
     border-radius: 10px;
-    background-color: #ec971f;
+    background-color: @popup_background_color;
     position: absolute;
-    top : 50px;
-    left: 50px;
 }
 
-.chat-text
+.editor_root{
+    position:absolute;
+    background: rgba(0,0,0,0.4);
+    top : 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index:100;
+    .editor_container{
+        height: 100%;
+        .right_pan{
+            background-color: #717171;
+            height: 100%;
+        }
+        .left_pan{
+            .o_image_annoted_div{
+                display: inline-block;
+            }
+        }
+    }
+    
+}
+
+
+
+/* Vandan Less*/
+
+/*Less from here*/
+.o_close_editor{
+    margin-top: 2px;
+    margin-left: 30px;
+    position:absolute;
+    top:5px; 
+    right:10px;
+    border-radius: 20%;
+    width: 40px;
+    z-index:101;
+}
+
+#main_root
 {
-    font-size: 10px;
+    width:100%;
+    height: 100%;
+    background: rgba(1,1,1,1);
+    bottom:0;
+    left:0;
+    position:fixed;
+    right:0;
+    top:0;
+    z-index:100;
+
+    /*col1*/
+    #navbar-inverse 
+    {
+        background-color: @navcolor;
+        border-color: @navcolor;
+        height: 70px;
+        #con_fluid
+        {
+            background-color:@navcolor;
+            .color_picker {
+                cursor: pointer;
+                /*display: inline-block;*/
+                height: 15px;
+                width: 15px;
+                margin-top: 15px;
+                margin-right: 10px; 
+                margin-left: 15px;  
+                background-color: #ffff00;   
+                 /*@circle_clr:background-color;       */
+                border-radius: 60%;
+            }
+            .color_picker_all{
+                cursor: pointer;
+                display: inline-block;
+                height: 15px;
+                width: 15px;    
+                margin-bottom: 4px;
+                border-radius: 60%;
+            }
+            #color_picker_col_yellow {
+                background-color: #ffff00;
+            }
+
+            #color_picker_col_red {
+                background-color: red;              
+            }
+            #color_picker_col_blue {
+                background-color:  #ff751a;             
+            }
+
+            #color_picker_col_green {               
+                background-color: blue;                
+            }
+            .right_pan col-md-3
+            {
+
+            } 
+            .btn-group {
+                position: relative;
+                display: inline-block;
+                vertical-align: middle;
+                margin-top:15px;
+                #btn_show
+                {
+                    border-radius: 40%;
+                }
+               
+            }
+        }
+    }
+    #img_main{
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+
+    }
+
+    /*start col2*/
+    #comment_area{
+
+        min-height: 100vh;
+        max-width: 100%;
+        background-color: #999999;
+        display: inline-block;
+        z-index:200;
+        .card{
+            .card-text ,.card-title{
+                color: #333333;
+                padding: 5px;
+            }
+            background-color:white;
+            width: 100%;
+            margin: 5px;
+            box-shadow: 0 4px 28px 0 rgba(0,0,0,0.2);
+            border:6;
+            &:hover {
+                        box-shadow: 0 8px 36px 0 #000000;
+                    }
+        }
+    }
+
+}
+
+
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 0px;
+    /*padding: 5px 0;*/
+    margin-top: : 2px;
+    list-style: none;
+    /*font-size: 13px;*/
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 0;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    background-clip: padding-box;
+    .color_picker_dropdown_row{
+        width: 100%;
+        margin-left: 0px;
+    }
+
+}
+.o_annoted_circle{
+    height: 23px;
+    width: 23px;
+    border-radius: 50%;
+    border: 4px solid #ffffff;
+    border-collapse: separate;
+    z-index: 2000;
+    position: absolute;
+    -webkit-transition: all 200ms ease;
+    -moz-transition: all 200ms ease;
+    -ms-transition: all 200ms ease;
+}
+
+.o_chat_box{
+    resize: none;
+}
+
+#save_subject , #cancel_subject , #cmnt_subject_edit_btn , #circle_remove_btn{
+
+    margin-left:10px;
+    aria-hidden:'true';
+    cursor: pointer;
+}
+
+.panel_btn_in_progress{
+    margin-left: 95px;
+    background-color: grey;
+    &:hover{
+    background-color:#ffc107;
+    };
+}
+.panel_btn_resolved{
+    background-color: grey;
+    border-color: white;
+    border-width: 2px;
+}
+.panel_btn_rejected{
+    background-color: grey;
+    &:hover{
+    background-color:#E53935;
+    };
+   
+
 }

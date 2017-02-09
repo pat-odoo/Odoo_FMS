@@ -29,9 +29,8 @@
                 <link rel="stylesheet" href="/mail/static/src/less/chatter.less" type="text/less"/>
                 <link rel="stylesheet" href="/mail/static/src/less/followers.less" type="text/less"/>
                 <link rel="stylesheet" href="/mail/static/src/less/thread.less" type="text/less"/>
-                <link rel="stylesheet" href="/mail/static/src/less/thread_new.less" type="text/less"/>
                 <link rel="stylesheet" href="/mail/static/src/less/systray.less" type="text/less"/>
-                
+
                 <!-- Image Editor CSS-->
                 <link rel="stylesheet" href="/mail/static/src/less/image_editor.less" type="text/less"/>
 
